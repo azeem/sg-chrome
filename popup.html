@@ -30,12 +30,19 @@
 	clear:both;
 	background-color: #555555;
 	padding:10px;
+	margin-bottom: 10px;
+	position: relative;
+}
+
+#popup-container .project-details:hover {
+	background-color: #444444;
 }
 
 #popup-container .project-name {
 	color:#E9BA17;
 	font-weight: bold;
-	margin-bottom:3px; 
+	margin-bottom:10px; 
+	cursor:pointer;
 }
 
 #popup-container .project-visibility {
@@ -43,11 +50,40 @@
 	margin-left:5em;
 	font-weight: bold;
 }
+
+#popup-container .project-assets {
+	position:absolute;
+	top:5px;
+	right:5px;
+}
+
+#popup-container .project-assets > div {
+	line-height: 20px;
+	padding-left: 25px;
+	margin-left: 5px;
+	float:left;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-image:url('asset_icons.png')
+}
+
+#popup-container .project-assets > div.space  {background-position: 0px -40px;}
+#popup-container .project-assets > div.people {background-position: 0px -60px;}
+#popup-container .project-assets > div.model  {background-position: 0px -20px;}
+#popup-container .project-assets > div.note   {background-position: 0px   0px;}
+
 </style>
-<div id="popup-container">
+<div id="popup-container"></div>
+<div id="template-container" style="display:none">
 	<div class="acc-container">
 		<div class="acc-name">azeem@sunglass.io</div>
 		<div class="project-details">
+			<div class="project-assets">
+				<div class="space">-</div>
+				<div class="people">-</div>
+				<div class="model">-</div>
+				<div class="note">-</div>
+			</div>
 			<div class="project-name">Ekrano Plane</div>
 			<div class="project-visibility">PRIVATE</div>
 			<div class="project-desc">Ekrano plane, is a plane that attains flight near the surface of the earth</div>
