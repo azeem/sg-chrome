@@ -1,29 +1,16 @@
-var accounts = [
-	{sid: 'ACT4%2FmQzPK3o', token: 'm7MRkaRlX8SzgTOm'}
-];
-var popupContainer, templateContainer;
+var popupContainer, template;
 
-function apiCall(url, account, callback) {
-    $.ajax({
-            type : "GET",
-            url : "https://sunglass.io/api/v1/" + url,
-            contentType : "application/json",
-            async : true,
-            cache : false,
-            timeout : 100000,
-            beforeSend : function(xhr) {
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(account.sid + ":" + account.token));
-            },
-            success : callback,
-            error : function(XMLHttpRequest, textStatus, errorThrown) {
-                console.log("Error in sunglass API call : " + textStatus + errorThrown);
-            }
-    });
-}
+function updatePopup(accounts, projects) {
+    for(var key in accounts) {
+        var account = accounts[key];
+        var accContainer = template.clone();
+        accContainer.find('.acc-name').text(account.name);
 
-function loadProjectDetails(account, accDetails) {
+        for(var projId in )
+    }
+
     apiCall('projects', account, function(projects) {
-        var accContainer = templateContainer.find('.acc-container').clone();
+        var accContainer = template.clone();
         accContainer.find('.acc-name').text(accDetails.name);
         
         var projTemplate = accContainer.find('.project-details').detach();
@@ -53,7 +40,7 @@ function loadProjectDetails(account, accDetails) {
 
 $(document).ready(function() {
     popupContainer = $('#popup-container');
-    templateContainer = $('#template-container');
+    template = popupContainer.children().detach();
 	for(var i in accounts) {
 		var account = accounts[i];
 		apiCall('users', account, function(accDetails) {

@@ -3,12 +3,15 @@
   "version": "0.1",
   "manifest_version": 2,
   "description": "Quickly access to Sunglass.io projects",
+  "background": {
+    "persistent": false,
+    "scripts": ["jquery.min.js", "background.js"]
+  },
   "browser_action": {
     "default_title": "Sunglass",
     "default_icon": "icon.png",
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
   "permissions": [
     "https://sunglass.io/api/v1/*"
   ]
