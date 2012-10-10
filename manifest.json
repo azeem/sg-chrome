@@ -14,6 +14,7 @@
   },
   "permissions": [
     "https://sunglass.io/api/v1/*",
-    "background"
+    "background",
+    "alarms"
   ]
 }

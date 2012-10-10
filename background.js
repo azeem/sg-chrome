@@ -27,7 +27,8 @@ function apiCall(url, auth, callback) {
 function getData(callback, forceLoad) {
     var data = [],       // all data to be displayed
         projectMap = [], // map from projectid to project for easy lookup
-        finished = 0;
+        finished = 0,
+        hasChange = false;
     forceLoad = (forceLoad === undefined?false:forceLoad);
 
     if(!forceLoad && cache !== undefined) {
@@ -56,6 +57,7 @@ function getData(callback, forceLoad) {
                                 }
                             }
                         }
+                        hasChange = true;
                         projects.push(project);
                         projectMap[project.id] = project;
                     }
@@ -63,8 +65,8 @@ function getData(callback, forceLoad) {
                 data.push({account:account, projects:projects});
                 finished++;
                 if(finished == auths.length) {
-                    if(callback !== undefined) {
-                        callback(data);
+                    if(callback) {
+                        callback(data, hasChange);
                     }
                     cache = {data:data, projectMap:projectMap};
                     localStorage['sgchrome.cache'] = JSON.stringify(cache);
@@ -73,3 +75,21 @@ function getData(callback, forceLoad) {
         });
     });
 }
+
+function onAlarm(alarm) {
+    if(alarm.name == 'sg-chrome-update-alarm') {
+        console.log('updating');
+        getData(function(data, hasChange) {
+            if(hasChange) {
+                chrome.browserAction.setBadgeText({text:'*'});
+            }
+            else {
+                chrome.browserAction.setBadgeText({text:''});
+            }
+        }, true);
+    }
+}
+
+chrome.alarms.onAlarm.addListener(onAlarm);
+console.log('scheduling reload');
+chrome.alarms.create('sg-chrome-update-alarm', {periodInMinutes:1})
