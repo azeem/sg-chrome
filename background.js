@@ -1,17 +1,9 @@
 var auths = [
-    {sid: 'ACT4%2FmQzPK3o', token: 'm7MRkaRlX8SzgTOm', authString: 'QUNUNCUyRm1RelBLM286bTdNUmthUmxYOFN6Z1RPbQ=='}
+    {sid: 'ACT4%2FmQzPK3o', token: 'm7MRkaRlX8SzgTOm'}
 ];
 var cache = localStorage['sgchrome.cache'];
-
-function getData(callback) {
-    if(cache === undefined) {
-        reloadAll(function() {
-            callback(cache.accounts, cache.projects);
-        });
-    }
-    else {
-        callback(cache.accounts, cache.projects);
-    }
+if(cache !== undefined) {
+    cache = JSON.parse(cache);
 }
 
 function apiCall(url, auth, callback) {
@@ -23,7 +15,7 @@ function apiCall(url, auth, callback) {
         cache : false,
         timeout : 100000,
         beforeSend : function(xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + auth.authString);
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(auth.sid + ":" + auth.token));
         },
         success : callback,
         error : function(XMLHttpRequest, textStatus, errorThrown) {
@@ -32,47 +24,52 @@ function apiCall(url, auth, callback) {
     });
 }
 
-function reloadAll(callback) {
-    var projects, accounts;
-    var finished = 0;
-    for(var i in auths) {
-        var auth = auths[i];
-        apiCall('users', auth, function(account) { // fetch account details
-            accounts[auth.authString] = account;
-            apiCall('projects', auth, function(resp) { // fetch user details
-                for(var role in resp) {
-                    var project = resp[role];
-                    var oldProject = cache.projects[auth.authString][project.id];
+function getData(callback, forceLoad) {
+    var data = [],       // all data to be displayed
+        projectMap = [], // map from projectid to project for easy lookup
+        finished = 0;
+    forceLoad = (forceLoad === undefined?false:forceLoad);
 
-                    project.userRole = role;
-                    project.changedAssetCounts = [];
-                    if(oldProject !== undefined) {
-                        // find changed asset counts
-                        var assetNames = ['spaces', 'collaborators', 'models', 'metaModels', 'notes'];
-                        for(var j in assetNames) {
-                            var assetName = assetNames[j]
-                            if(oldProject.assetCounts[assetName] != project.assetCounts[assetName]) {
-                                project.changedAssetCounts.push(assetName)
+    if(!forceLoad && cache !== undefined) {
+        console.log('from cache');
+        callback(cache.data);
+        return;
+    }
+
+    $.each(auths, function(index, auth) {
+        apiCall('users', auth, function(account) {
+            apiCall('projects', auth, function(resp) {
+                var projects = [];
+                for(var role in resp) {
+                    for(var i = 0;i < resp[role].length;i++) {
+                        var project = resp[role][i];
+                        var oldProject = (cache !== undefined?cache.projectMap[project.id]:undefined);
+
+                        project.userRole = role;
+                        project.changedAssetCounts = [];
+                        if(oldProject !== undefined) {
+                            var assetNames = ['spaces', 'collaborators', 'models', 'metaModels', 'notes'];
+                            for(var j in assetNames) {
+                                var assetName = assetNames[j]
+                                if(oldProject.assetCounts[assetName] != project.assetCounts[assetName]) {
+                                    project.changedAssetCounts.push(assetName);
+                                }
                             }
                         }
+                        projects.push(project);
+                        projectMap[project.id] = project;
                     }
-                    projects[auth.authString][project.id] = project;
                 }
+                data.push({account:account, projects:projects});
                 finished++;
-                if(finished == auths.length ) {
-                    if(cache === undefined) {
-                        cache = {projects: projects, accounts: accounts}
-                    }
-                    else {
-                        cache.projects = projects;
-                        cache.accounts = accounts;
-                    }
-                    localStorage['sgchrome.cache'] = cache;
+                if(finished == auths.length) {
                     if(callback !== undefined) {
-                        callback();
+                        callback(data);
                     }
+                    cache = {data:data, projectMap:projectMap};
+                    localStorage['sgchrome.cache'] = JSON.stringify(cache);
                 }
-            });
+            })
         });
-    }
+    });
 }

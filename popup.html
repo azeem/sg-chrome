@@ -67,10 +67,20 @@
 	background-image:url('asset_icons.png')
 }
 
-#popup-container .project-assets > div.space  {background-position: 0px -40px;}
-#popup-container .project-assets > div.people {background-position: 0px -60px;}
-#popup-container .project-assets > div.model  {background-position: 0px -20px;}
-#popup-container .project-assets > div.note   {background-position: 0px   0px;}
+#popup-container .project-assets > div.highlight {
+	color:#FFCE45;
+	font-weight: bold;
+}
+
+#popup-container .project-assets > div.models  {background-position: 0px 0px;}
+#popup-container .project-assets > div.notes   {background-position: 0px -40px;}
+#popup-container .project-assets > div.collaborators {background-position: 0px -80px;}
+#popup-container .project-assets > div.spaces  {background-position: 0px -120px;}
+
+#popup-container .project-assets > div.highlight.models  {background-position: 0px -20px;}
+#popup-container .project-assets > div.highlight.notes   {background-position: 0px -60px;}
+#popup-container .project-assets > div.highlight.collaborators {background-position: 0px -100px;}
+#popup-container .project-assets > div.highlight.spaces  {background-position: 0px -140px;}
 
 </style>
 <div id="popup-container">
@@ -78,10 +88,10 @@
 		<div class="acc-name">azeem@sunglass.io</div>
 		<div class="project-details">
 			<div class="project-assets">
-				<div class="space">-</div>
-				<div class="people">-</div>
-				<div class="model">-</div>
-				<div class="note">-</div>
+				<div class="spaces">-</div>
+				<div class="collaborators">-</div>
+				<div class="models">-</div>
+				<div class="notes">-</div>
 			</div>
 			<div class="project-name">Ekrano Plane</div>
 			<div class="project-visibility">PRIVATE</div>
