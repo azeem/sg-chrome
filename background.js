@@ -24,19 +24,28 @@ function apiCall(url, auth, callback) {
     });
 }
 
+function clearNotifs() {
+    cache.notifs = [];
+    cache.changeCount = []
+    localStorage['sgchrome.cache'] = JSON.stringify(cache);
+    chrome.browserAction.setBadgeText({text:''});
+}
+
 function getData(callback, forceLoad) {
     var data = [],       // all data to be displayed
         projectMap = [], // map from projectid to project for easy lookup
+        notifs = [],     // list of notifications
         finished = 0,
-        hasChange = false;
+        changeCount = 0;
     forceLoad = (forceLoad === undefined?false:forceLoad);
 
     if(!forceLoad && cache !== undefined) {
         console.log('from cache');
-        callback(cache.data);
+        callback(cache.data, cache.changeCount, cache.notifs);
         return;
     }
 
+    console.log('Reloading all data')
     $.each(auths, function(index, auth) {
         apiCall('users', auth, function(account) {
             apiCall('projects', auth, function(resp) {
@@ -46,29 +55,37 @@ function getData(callback, forceLoad) {
                         var project = resp[role][i];
                         var oldProject = (cache !== undefined?cache.projectMap[project.id]:undefined);
 
-                        project.userRole = role;
-                        project.changedAssetCounts = [];
+                        var oldNotif = (cache !== undefined?cache.notifs[project.id]:undefined);
+                        var notif = (oldNotif !== undefined?oldNotif:[]);
+
                         if(oldProject !== undefined) {
-                            var assetNames = ['spaces', 'collaborators', 'models', 'metaModels', 'notes'];
-                            for(var j in assetNames) {
-                                var assetName = assetNames[j]
+                            $.each(['spaces', 'collaborators', 'models', 'metaModels', 'notes'], function(index, assetName) {
                                 if(oldProject.assetCounts[assetName] != project.assetCounts[assetName]) {
-                                    project.changedAssetCounts.push(assetName);
+                                    if($.inArray(assetName, notif) == -1) {
+                                        notif.push(assetName);
+                                    }
                                 }
-                            }
+                            });
                         }
-                        hasChange = true;
+
+                        if(notif.length > 0) {
+                            changeCount++;
+                        }
+
                         projects.push(project);
                         projectMap[project.id] = project;
+                        notifs[project.id] = notif;
                     }
                 }
                 data.push({account:account, projects:projects});
                 finished++;
                 if(finished == auths.length) {
+                    console.log('Finished loading all data');
+                    console.log('changeCount =' + changeCount);
                     if(callback) {
-                        callback(data, hasChange);
+                        callback(data, changeCount, notifs);
                     }
-                    cache = {data:data, projectMap:projectMap};
+                    cache = {data:data, projectMap:projectMap, notifs:notifs, changeCount:changeCount};
                     localStorage['sgchrome.cache'] = JSON.stringify(cache);
                 }
             })
@@ -78,10 +95,9 @@ function getData(callback, forceLoad) {
 
 function onAlarm(alarm) {
     if(alarm.name == 'sg-chrome-update-alarm') {
-        console.log('updating');
-        getData(function(data, hasChange) {
-            if(hasChange) {
-                chrome.browserAction.setBadgeText({text:'*'});
+        getData(function(data, changeCount) {
+            if(changeCount > 0) {
+                chrome.browserAction.setBadgeText({text:'' + changeCount});
             }
             else {
                 chrome.browserAction.setBadgeText({text:''});

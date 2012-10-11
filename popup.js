@@ -1,6 +1,6 @@
 var popupContainer, template;
 
-function updatePopup(data) {
+function updatePopup(data, changeCount, notifs) {
     for(var i = 0;i < data.length;i++) {
         var account = data[i].account;
         var projects = data[i].projects;
@@ -22,10 +22,10 @@ function updatePopup(data) {
             $.each(project.assetCounts, function(assetname, count) {
                 var elem = projContainer.find('.' + assetname);
                 elem.text(count);
-                if($.inArray(assetname, project.changedAssetCounts) != -1) {
+                if(notifs[project.id] !== undefined && $.inArray(assetname, notifs[project.id]) != -1) {
                     elem.addClass('highlight');
                 }
-            })
+            });
             projContainer.appendTo(accContainer);
         }
         accContainer.appendTo(popupContainer);
@@ -37,5 +37,6 @@ $(document).ready(function() {
      template = popupContainer.children().detach();
      chrome.runtime.getBackgroundPage(function(bgPage) {
         bgPage.getData(updatePopup);
+        bgPage.clearNotifs();
      });
 });
