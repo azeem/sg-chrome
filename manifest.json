@@ -2,7 +2,7 @@
   "name": "Sunglass",
   "version": "0.1",
   "manifest_version": 2,
-  "description": "Quickly access to Sunglass.io projects",
+  "description": "Quickly access Sunglass.io projects",
   "background": {
     "persistent": false,
     "scripts": ["jquery.min.js", "background.js"]
@@ -16,5 +16,6 @@
     "https://sunglass.io/api/v1/*",
     "background",
     "alarms"
-  ]
+  ],
+  "options_page": "options.html"
 }

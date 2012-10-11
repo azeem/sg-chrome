@@ -1,0 +1,82 @@
+<script type="text/javascript" src="options.js"></script>
+<style type="text/css">
+
+input[type='text'] {
+	border:none;
+	background-color:white;
+	width: 100px;
+	padding:3px;
+}
+
+#options-container {
+	width:500px;
+	margin: 2em auto 0px auto;
+	background-color:#333333;
+	color:#C9C9C9;
+	padding:10px;
+	font-size:11px;
+	font-family:'lucida grande',tahoma,verdana,arial,sans-serif;
+}
+
+#options-container h1 {
+	text-align: center;
+	margin: 0px;
+	font-size: 1.7em;
+}
+
+#options-container h2 {
+	font-size: 1.2em;
+	text-align: right;
+	padding-bottom:3px;
+	border-bottom: 1px dotted #FFCE45;
+}
+
+#options-container .acc {
+	background-color: #555555;
+	margin-bottom: 5px;
+	padding:10px;
+	line-height: 20px;
+	font-weight: bold;
+}
+
+#options-container .acc:hover {
+	background-color: #444444;
+}
+
+#options-container .acc button {
+	border: none;
+	width:20px;
+	height: 20px;
+	margin-left: 10px;
+	float:right;
+	color: #FFCE45;
+	cursor: pointer;
+	padding: 0px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+}
+
+#options-container .acc button:hover {
+	background-position: 0px -20px;
+}
+
+.remove-button { background-image: url('remove.png'); }
+.edit-button   { background-image: url('edit.png'); }
+
+</style>
+<div id="options-container">
+	<h1>Sunglass Extension Options</h1>
+	<h2>Accounts</h2>
+	<div class="acc-container">
+		<div class="acc">
+			<button class="remove-button"></button>
+			<button class="edit-button"></button>
+			<div class="acc-name">Azeem (azeem@sunglass.io)</div>
+		</div>
+		<div class="acc acc-edit">
+			SID: <input type="text"/>
+			TOKEN: <input type="text"/>
+		</div>
+	</div>
+</div>
