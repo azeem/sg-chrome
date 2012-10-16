@@ -6,24 +6,6 @@ if(cache !== undefined) {
     cache = JSON.parse(cache);
 }
 
-function apiCall(url, auth, callback) {
-    $.ajax({
-        type : "GET",
-        url : "https://sunglass.io/api/v1/" + url,
-        contentType : "application/json",
-        async : true,
-        cache : false,
-        timeout : 100000,
-        beforeSend : function(xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(auth.sid + ":" + auth.token));
-        },
-        success : callback,
-        error : function(XMLHttpRequest, textStatus, errorThrown) {
-            console.log("Error in sunglass API call : " + textStatus + errorThrown);
-        }
-    });
-}
-
 function clearNotifs() {
     cache.notifs = [];
     cache.changeCount = []

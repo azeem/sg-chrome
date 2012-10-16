@@ -1,12 +1,7 @@
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="common.js"></script>
 <script type="text/javascript" src="options.js"></script>
 <style type="text/css">
-
-input[type='text'] {
-	border:none;
-	background-color:white;
-	width: 150px;
-	padding:3px;
-}
 
 label {
 	border:1px solid white;
@@ -24,12 +19,13 @@ label {
 }
 
 .blackcontainer h1 {
+	margin-top:0px;
 	text-align: center;
-	margin: 0px;
 	font-size: 1.7em;
 }
 
 .blackcontainer h2 {
+	margin-top:0px;
 	font-size: 1.2em;
 	text-align: right;
 	padding-bottom:3px;
@@ -76,16 +72,66 @@ label {
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	display: none;
 }
 
-#edit-accdlg {
-	width:400px;
+#edit-accdlg .blackcontainer {
+	width:300px;
 	margin-top:100px;
 }
 
-.label {
-	display: inline;
+.text-box {
+	margin:10px auto 10px auto;
+	position:relative;
+	height:20px;
+	width:200px;
+	line-height: 20px;
+	padding:5px;
+	text-align: left;
+}
+
+.text-box input {
+	border:none;
+	padding:5px;
+	background-color: #C9C9C9;
+	position: absolute;
+	top:0px;
+	left:35%;
+	width:65%;
+	height:100%;
+}
+
+#login-type-switcher {
+	text-align: center;
+	padding:5px;
 	width:50%;
+	margin: 15px auto;
+	cursor: pointer;
+}
+
+#login-type-switcher:hover {
+	background: #444444;
+}
+
+#login-type-switcher .highlight {
+	color:#FFCE45;
+	font-weight: bold;
+}
+
+#edit-accdlg .api.form {
+	display: none;
+}
+
+#edit-accdlg .busybox, #edit-accdlg .errorbox {
+	display: none;
+}
+
+#edit-accdlg.busy div:first-child, #edit-accdlg.error div:first-child {
+	display: none;
+}
+
+#edit-accdlg.busy .busybox, #edit-accdlg.error .errorbox {
+	display: block;
 }
 
 </style>
@@ -95,22 +141,44 @@ label {
 	<div class="acc-container">
 		<div class="acc">
 			<button class="remove-button"></button>
-			<button class="edit-button"></button>
-			<div class="acc-name">Azeem (azeem@sunglass.io)</div>
+			<span class="name">Azeem</span> (<span class="email">azeem@sunglass.io</span>)</div>
 		</div>
+		<button id="addacc-button">Add</button>
 	</div>
+	<button id="saveopt-button">Save Settings</button>
 </div>
 
-<div class="overlay">
-	<div class="blackcontainer" id="edit-accdlg">
-		<h1>Edit account</h1>
-		<div>
-			<div class="label">SID</div>
-			<input type="text"/>
+<div class="overlay" id="edit-accdlg">
+	<div class="blackcontainer">
+		<h1>Add account</h1>
+		<div id="login-type-switcher"><span class="highlight">Login</span> | <span>API</span></div>
+		<div class="form login">
+			<div class="text-box">
+				<span>Username</span>
+				<input type="text"/>
+			</div>
+			<div class="text-box">
+				<span>Password</span>
+				<input type="password"/>
+			</div>
 		</div>
-		<div>
-			<div class="label">Token</div>
-			<input type="text"/>
+		<div class="form api">
+			<div class="text-box">
+				<span>SID</span>
+				<input type="text"/>
+			</div>
+			<div class="text-box">
+				<span>Token</span>
+				<input type="text"/>
+			</div>
 		</div>
+		<button id="addbutton">Add</button><button class="cancelbutton">Cancel</button>
+	</div>
+	<div class="blackcontainer busybox">
+		<h1>Loading...</h1>
+	</div>
+	<div class="blackcontainer errorbox">
+		<h1>Error</h1>
+		<button class="cancelbutton">Okay</button>
 	</div>
 </div>
