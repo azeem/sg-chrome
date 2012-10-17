@@ -4,7 +4,7 @@ function apiCall(url, auth, success, error) {
             console.log("Error in sunglass API call : " + textStatus + " " + errorThrown);
         }
     }
-
+    console.log(JSON.stringify(auth));
     $.ajax({
         type : "GET",
         url : "https://sunglass.io/api/v1/" + url,

@@ -1,14 +1,37 @@
-var auths = [
-    {sid: 'ACT4%2FmQzPK3o', token: 'm7MRkaRlX8SzgTOm'}
-];
+var settings = localStorage['sgchrome.settings'];
+if(settings === undefined) {
+    settings = {accounts:[]}
+}
+else {
+    settings = JSON.parse(settings);
+}
+
 var cache = localStorage['sgchrome.cache'];
-if(cache !== undefined) {
+if(cache === undefined) {
+    cache = {data:[], projectMap:[], notifs:[], changeCount:0, valid:true}
+}
+else {
     cache = JSON.parse(cache);
 }
 
+function getSettings() {
+    return settings;
+}
+
+function saveSettings(newSettings) {
+    settings = newSettings;
+    localStorage['sgchrome.settings'] = JSON.stringify(newSettings);
+
+    // invalidate cache to force popup reload
+    cache.valid = false;
+    localStorage['sgchrome.cache'] = JSON.stringify(cache);
+}
+
 function clearNotifs() {
-    cache.notifs = [];
-    cache.changeCount = []
+    if(cache !== undefined) {
+        cache.notifs = [];
+        cache.changeCount = []
+    }
     localStorage['sgchrome.cache'] = JSON.stringify(cache);
     chrome.browserAction.setBadgeText({text:''});
 }
@@ -21,56 +44,56 @@ function getData(callback, forceLoad) {
         changeCount = 0;
     forceLoad = (forceLoad === undefined?false:forceLoad);
 
-    if(!forceLoad && cache !== undefined) {
+    if(!forceLoad && cache.valid) {
         console.log('from cache');
         callback(cache.data, cache.changeCount, cache.notifs);
         return;
     }
 
-    console.log('Reloading all data')
-    $.each(auths, function(index, auth) {
-        apiCall('users', auth, function(account) {
-            apiCall('projects', auth, function(resp) {
-                var projects = [];
-                for(var role in resp) {
-                    for(var i = 0;i < resp[role].length;i++) {
-                        var project = resp[role][i];
-                        var oldProject = (cache !== undefined?cache.projectMap[project.id]:undefined);
+    $.each(settings.accounts, function(index, account) {
+        console.log('Fetching Account : ' + account.name);
+        apiCall('projects', account, function(resp) {
+            var projects = [];
+            for(var role in resp) {
+                for(var i = 0;i < resp[role].length;i++) {
+                    var project = resp[role][i];
+                    var oldProject = cache.projectMap[project.id];
+                    var notif = cache.notifs[project.id];
 
-                        var oldNotif = (cache !== undefined?cache.notifs[project.id]:undefined);
-                        var notif = (oldNotif !== undefined?oldNotif:[]);
-
-                        if(oldProject !== undefined) {
-                            $.each(['spaces', 'collaborators', 'models', 'metaModels', 'notes'], function(index, assetName) {
-                                if(oldProject.assetCounts[assetName] != project.assetCounts[assetName]) {
-                                    if($.inArray(assetName, notif) == -1) {
-                                        notif.push(assetName);
-                                    }
+                    if(oldProject !== undefined) {
+                        $.each(['spaces', 'collaborators', 'models', 'metaModels', 'notes'], function(index, assetName) {
+                            if(oldProject.assetCounts[assetName] != project.assetCounts[assetName]) {
+                                if($.inArray(assetName, notif) == -1) {
+                                    notif.push(assetName);
                                 }
-                            });
-                        }
-
-                        if(notif.length > 0) {
-                            changeCount++;
-                        }
-
-                        projects.push(project);
-                        projectMap[project.id] = project;
-                        notifs[project.id] = notif;
+                            }
+                        });
                     }
-                }
-                data.push({account:account, projects:projects});
-                finished++;
-                if(finished == auths.length) {
-                    console.log('Finished loading all data');
-                    console.log('changeCount =' + changeCount);
-                    if(callback) {
-                        callback(data, changeCount, notifs);
+
+                    if(notif === undefined) {
+                        notif = [];
                     }
-                    cache = {data:data, projectMap:projectMap, notifs:notifs, changeCount:changeCount};
-                    localStorage['sgchrome.cache'] = JSON.stringify(cache);
+                    if(notif.length > 0) {
+                        changeCount++;
+                    }
+
+                    projects.push(project);
+                    projectMap[project.id] = project;
+                    notifs[project.id] = notif;
                 }
-            })
+            }
+            data.push({account:account, projects:projects});
+            finished++;
+            if(finished == settings.accounts.length) {
+                console.log('Finished fetching all data');
+                if(callback) {
+                    callback(data, changeCount, notifs);
+                }
+                cache = {data:data, projectMap:projectMap,
+                         notifs:notifs, changeCount:changeCount,
+                         valid:true};
+                localStorage['sgchrome.cache'] = JSON.stringify(cache);
+            }
         });
     });
 }

@@ -3,6 +3,19 @@
 <script type="text/javascript" src="options.js"></script>
 <style type="text/css">
 
+button {
+	font-size: 98%;
+	background-color: #B7B7B7;
+	border: none;
+	padding:5px;
+	color: #333333;
+	cursor: pointer;
+}
+
+button:hover {
+	background-color: #FFFFFF;
+}
+
 label {
 	border:1px solid white;
 	width:200px;
@@ -27,9 +40,7 @@ label {
 .blackcontainer h2 {
 	margin-top:0px;
 	font-size: 1.2em;
-	text-align: right;
 	padding-bottom:3px;
-	border-bottom: 1px dotted #FFCE45;
 }
 
 #options-container .acc {
@@ -134,6 +145,13 @@ label {
 	display: block;
 }
 
+.dlg-buttongroup {
+	margin-top: 10px;
+	padding:5px 0px;
+	border-top: 1px dotted #FFCE45;
+	text-align: right;
+}
+
 </style>
 <div class="blackcontainer" id="options-container">
 	<h1>Sunglass Extension Options</h1>
@@ -141,11 +159,16 @@ label {
 	<div class="acc-container">
 		<div class="acc">
 			<button class="remove-button"></button>
-			<span class="name">Azeem</span> (<span class="email">azeem@sunglass.io</span>)</div>
+			<span class="name">Azeem</span> (<span class="email">azeem@sunglass.io</span>)
 		</div>
-		<button id="addacc-button">Add</button>
+		<div class="acc empty">
+			You have not added any accounts yet
+		</div>
+		<button id="addacc-button">Add Account</button>
 	</div>
-	<button id="saveopt-button">Save Settings</button>
+	<div class="dlg-buttongroup">
+		<button id="saveopt-button">Save Options</button>
+	</div>
 </div>
 
 <div class="overlay" id="edit-accdlg">

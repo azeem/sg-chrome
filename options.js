@@ -1,16 +1,26 @@
-var accounts = [];
+var settings;
 var accContainer;
 var editAccDlg;
 var accItemTemplate;
+var emptyAccItemTemplate;
 
 function refreshAccountList() {
-	accContainer.children().remove();
-	$.each(accounts, function(index, account) {
-		var accItem = accItemTemplate.clone();
-		accItem.find('.name').text(account.name);
-		accItem.find('.email').text(account.emails.split(',')[0]);
-		accItem.appendTo(accContainer);
-	})
+	accContainer.children('.acc').remove();
+	if(settings.accounts.length == 0) {
+		emptyAccItemTemplate.clone().prependTo(accContainer);
+	}
+	else {
+		$.each(settings.accounts, function(index, account) {
+			var accItem = accItemTemplate.clone();
+			accItem.find('.name').text(account.name);
+			accItem.find('.email').text(account.emails.split(',')[0]);
+			accItem.find('.remove-button').click(function() {
+				settings.accounts.splice(index, 1);
+				accItem.remove();
+			});
+			accItem.prependTo(accContainer);
+		});		
+	}
 }
 
 function addAccount() {
@@ -18,12 +28,12 @@ function addAccount() {
 	console.log("inside addAccount" + authType);
 	if(authType == 'api') {
 		var inputs = $('#edit-accdlg .form.api input');
-		var auth = {sid:inputs.first().val(), token:inputs.last().val()}
+		var account = {sid:inputs.first().val(), token:inputs.last().val()}
 		editAccDlg.addClass('busy')
-		apiCall('users', auth,
-			function(account) {
-				auth.account = account;
-				accounts.push(account);
+		apiCall('users', account,
+			function(resp) {
+				$.extend(account, resp);
+				settings.accounts.push(account);
 				refreshAccountList();
 				editAccDlg.hide();
 			},
@@ -41,15 +51,21 @@ function showEditAccDlg() {
 	editAccDlg.removeClass('busy error').show();
 }
 
-function saveOptions() {
-	console.log('Not implemented yet');
+function save() {
+	chrome.runtime.getBackgroundPage(function(bgPage) {
+		bgPage.saveSettings(settings);
+		console.log('Settings saved');
+	});
 }
 
 $(document).ready(function() {
 	accItemTemplate = $('#options-container .acc').detach();
+	emptyAccItemTemplate = $('#options-container .empty').detach();
+	
 	accContainer = $('#options-container .acc-container');
 	editAccDlg = $('#edit-accdlg');
 
+	$('#saveopt-button').click(save);
 	$('#addacc-button').click(showEditAccDlg);
 	$('#addbutton').click(addAccount);
 	$('.cancelbutton').click(function() {
@@ -61,5 +77,8 @@ $(document).ready(function() {
 		editAccDlg.find('.form').toggle();
 	})
 
-	refreshAccountList();
+	chrome.runtime.getBackgroundPage(function(bgPage) {
+        settings = bgPage.getSettings();
+        refreshAccountList();
+     });
 })
