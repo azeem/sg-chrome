@@ -75,6 +75,10 @@ function getData(callback, forceLoad) {
                     var project = resp[role][i];
                     var oldProject = cache.projectMap[project.id];
                     var notif = cache.notifs[project.id];
+                    
+                    if(notif === undefined) {
+                        notif = [];
+                    }
 
                     if(oldProject !== undefined) {
                         $.each(['spaces', 'collaborators', 'models', 'metaModels', 'notes'], function(index, assetName) {
@@ -86,9 +90,6 @@ function getData(callback, forceLoad) {
                         });
                     }
 
-                    if(notif === undefined) {
-                        notif = [];
-                    }
                     if(notif.length > 0) {
                         changeCount++;
                     }
