@@ -33,8 +33,8 @@ function saveSettings(newSettings) {
  */
 function clearNotifs() {
     if(cache !== undefined) {
-        cache.notifs = [];
-        cache.changeCount = []
+        cache.notifs = {};
+        cache.changeCount = 0;
     }
     localStorage['sgchrome.cache'] = JSON.stringify(cache);
     chrome.browserAction.setBadgeText({text:''});
