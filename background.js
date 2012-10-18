@@ -1,23 +1,18 @@
-var settings = localStorage['sgchrome.settings'];
-if(settings === undefined) {
-    settings = {accounts:[]}
-}
-else {
-    settings = JSON.parse(settings);
-}
+var settings, cache;
 
-var cache = localStorage['sgchrome.cache'];
-if(cache === undefined) {
-    cache = {data:[], projectMap:[], notifs:[], changeCount:0, valid:true}
-}
-else {
-    cache = JSON.parse(cache);
-}
-
+/*
+ * [Public] returns the extension settings
+ */
 function getSettings() {
-    return settings;
+    var copy = {};
+    $.extend(true, copy, settings);
+    return copy;
 }
 
+/*
+ * [Public] replaces current settings object and
+ * persists it
+ */
 function saveSettings(newSettings) {
     settings = newSettings;
     localStorage['sgchrome.settings'] = JSON.stringify(newSettings);
@@ -25,8 +20,17 @@ function saveSettings(newSettings) {
     // invalidate cache to force popup reload
     cache.valid = false;
     localStorage['sgchrome.cache'] = JSON.stringify(cache);
+
+    //reset alarm
+    console.log('resetting alarm')
+    chrome.alarms.clear('sg-chrome-update-alarm');
+    chrome.alarms.create('sg-chrome-update-alarm', {periodInMinutes:settings.refreshFreq});
 }
 
+/*
+ * [Public] clears all notifications in the cache
+ * and resets the bade. Also persists the cache
+ */
 function clearNotifs() {
     if(cache !== undefined) {
         cache.notifs = [];
@@ -36,17 +40,29 @@ function clearNotifs() {
     chrome.browserAction.setBadgeText({text:''});
 }
 
+/*
+ * [Public] returns extension content data. either from
+ * the cache or loads it on the fly
+ */
 function getData(callback, forceLoad) {
     var data = [],       // all data to be displayed
-        projectMap = [], // map from projectid to project for easy lookup
-        notifs = [],     // list of notifications
+        projectMap = {}, // map from projectid to project for easy lookup
+        notifs = {},     // list of notifications
         finished = 0,
         changeCount = 0;
+    console.log('inside getData');
     forceLoad = (forceLoad === undefined?false:forceLoad);
 
     if(!forceLoad && cache.valid) {
         console.log('from cache');
         callback(cache.data, cache.changeCount, cache.notifs);
+        return;
+    }
+
+    if(settings.accounts == 0) {
+        if(callback !== undefined) {
+            callback(data, changeCount, notifs);
+        }
         return;
     }
 
@@ -86,7 +102,7 @@ function getData(callback, forceLoad) {
             finished++;
             if(finished == settings.accounts.length) {
                 console.log('Finished fetching all data');
-                if(callback) {
+                if(callback !== undefined) {
                     callback(data, changeCount, notifs);
                 }
                 cache = {data:data, projectMap:projectMap,
@@ -98,6 +114,9 @@ function getData(callback, forceLoad) {
     });
 }
 
+/*
+ * Alarm handler
+ */
 function onAlarm(alarm) {
     if(alarm.name == 'sg-chrome-update-alarm') {
         getData(function(data, changeCount) {
@@ -111,6 +130,31 @@ function onAlarm(alarm) {
     }
 }
 
-chrome.alarms.onAlarm.addListener(onAlarm);
-console.log('scheduling reload');
-chrome.alarms.create('sg-chrome-update-alarm', {periodInMinutes:1})
+/*
+ * Bootstrap
+ */
+function boot() {
+    // load settings and cache from local storage,
+    // initialize with defaults
+    settings = localStorage['sgchrome.settings'];
+    if(settings === undefined) {
+        settings = {accounts:[], refreshFreq:5}
+    }
+    else {
+        settings = JSON.parse(settings);
+    }
+    
+    cache = localStorage['sgchrome.cache'];
+    if(cache === undefined) {
+        cache = {data:[], projectMap:{}, notifs:{}, changeCount:0, valid:true}
+    }
+    else {
+        cache = JSON.parse(cache);
+    }
+
+    // setup alarm
+    chrome.alarms.onAlarm.addListener(onAlarm);
+    chrome.alarms.create('sg-chrome-update-alarm', {periodInMinutes:settings.refreshFreq});
+}
+
+boot(); // boot up mother fucker!!

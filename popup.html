@@ -1,6 +1,16 @@
 <script type="text/javascript" src="jquery.min.js"></script>
 <script type="text/javascript" src="popup.js"></script>
 <style type="text/css">
+a {
+	color:#C9C9C9;
+	border-bottom:1px dashed #C9C9C9;
+	text-decoration: none;
+}
+
+a:hover {
+	color:#FFCE45;
+}
+
 #popup-container {
 	width:400px;
 	background-color:#333333;
@@ -8,11 +18,12 @@
 	padding:10px;
 	font-size:11px;
 	font-family:'lucida grande',tahoma,verdana,arial,sans-serif;
+	max-height: 500px;
+	overflow: auto;
 }
 
 #popup-container .acc-container {
-	border-top:1px dotted #C9C9C9;
-	padding-top:5px;
+	padding-top:10px;
 	margin-bottom:10px;
 }
 
@@ -26,15 +37,16 @@
 	margin-bottom: 5px;
 }
 
-#popup-container .project-details {
+.item {
 	clear:both;
 	background-color: #555555;
 	padding:10px;
 	margin-bottom: 10px;
 	position: relative;
+	min-height: 40px;
 }
 
-#popup-container .project-details:hover {
+.item:hover {
 	background-color: #444444;
 }
 
@@ -82,11 +94,19 @@
 #popup-container .project-assets > div.highlight.collaborators {background-position: 0px -100px;}
 #popup-container .project-assets > div.highlight.spaces  {background-position: 0px -140px;}
 
+.busybox, .emptybox {
+	line-height: 40px;
+	text-align: center;
+	font-weight: bold;
+	color:#FFCE45;
+	margin: 0px;
+}
+
 </style>
 <div id="popup-container">
 	<div class="acc-container">
 		<div class="acc-name">azeem@sunglass.io</div>
-		<div class="project-details">
+		<div class="project-details item">
 			<div class="project-assets">
 				<div class="spaces">-</div>
 				<div class="collaborators">-</div>
@@ -97,5 +117,11 @@
 			<div class="project-visibility">PRIVATE</div>
 			<div class="project-desc">Ekrano plane, is a plane that attains flight near the surface of the earth</div>
 		</div>
+	</div>
+	<div class="busybox item">
+		Loading . . .
+	</div>
+	<div class="emptybox item">
+		Go to <a target="_blank" href="options.html">Options</a> to add Sunglass Accounts.
 	</div>
 </div>

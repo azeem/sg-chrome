@@ -1,14 +1,15 @@
+/*
+ * Makes a Sunglass API call
+ */
 function apiCall(url, auth, success, error) {
-    if(error === undefined) {
+    /*if(error === undefined) {
         error = function(XMLHttpRequest, textStatus, errorThrown) {
             console.log("Error in sunglass API call : " + textStatus + " " + errorThrown);
         }
     }
-    console.log(JSON.stringify(auth));
     $.ajax({
-        type : "GET",
         url : "https://sunglass.io/api/v1/" + url,
-        contentType : "application/json",
+        type: 'GET',
         async : true,
         cache : false,
         timeout : 100000,
@@ -17,5 +18,26 @@ function apiCall(url, auth, success, error) {
         },
         success : success,
         error : error 
+    }); */
+    apiAjax(url, {
+       beforeSend : function(xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(auth.sid + ":" + auth.token));
+        },
+        success : success,
+        error : error 
     });
+}
+
+function apiAjax(url, options) {
+    var opt = {
+        url : "https://sunglass.io/api/v1/" + url,
+        async : true,
+        cache : false,
+        timeout : 100000,
+        error : function(XMLHttpRequest, textStatus, errorThrown) {
+            console.log("Error in sunglass API call : " + textStatus + " " + errorThrown);
+        }
+    };
+    $.extend(opt, options);
+    $.ajax(opt);
 }
