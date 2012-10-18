@@ -16,15 +16,15 @@ function updatePopup(data, changeCount, notifs) {
         emptyTemplate.clone().appendTo(popupContainer);
     }
     else {
-        for(var i = 0;i < data.length;i++) {
+        $.each(data, function(i, item) {
             var account = data[i].account;
             var projects = data[i].projects;
 
             var accContainer = acctsTemplate.clone();
             accContainer.find('.acc-name').text(account.name);
             var projTemplate = accContainer.find('.project-details').detach();
-            for(var j = 0;j < projects.length;j++) {
-                var project = projects[j];
+
+            $.each(projects, function(index, project) {
                 var projContainer = projTemplate.clone();
                 projContainer.find('.project-name').text(project.name).click(function() {
                     var url = 'https://sunglass.io/project/' + project.id
@@ -42,9 +42,9 @@ function updatePopup(data, changeCount, notifs) {
                     }
                 });
                 projContainer.appendTo(accContainer);
-            }
+            });
             accContainer.appendTo(popupContainer);
-        }
+        });
     }
     fixHeight();
 }
